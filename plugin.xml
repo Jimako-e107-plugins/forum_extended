@@ -15,7 +15,7 @@
 	</adminLinks>
  	<pluginPrefs>
 		<pref name="plugin_organization">Jimako-e107-plugins</pref>
-		<pref name="plugin_repo">jmadmin</pref>
+		<pref name="plugin_repo">forum_extended</pref>
 		<pref name="plugin_branch">main</pref>
 	</pluginPrefs>
 </e107Plugin>
