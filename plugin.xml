@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e107Plugin name="Forum Extended" lan="Forum Extended" version="1.0.1" date="2022-05-19" compatibility="2.3" installRequired="true" >
+	<author name="e107 Inc." url="https://e107.org" />
+	<summary>This plugin extends forum plugin functionality</summary>
+	<description>This plugin extends forum plugin functionality</description>
+	<keywords>
+		<word>admin</word>
+		<word>forum</word>
+		<word>extended</word>
+	</keywords>
+	<category>content</category>
+	<copyright>e107sk.com</copyright>
+	<adminLinks>
+		<link url="admin/admin_config.php" description="" icon='images/forums_32.png' iconSmall='images/forums_16.png' primary="true" >LAN_CONFIGURE</link>
+	</adminLinks>
+ 	<pluginPrefs>
+		<pref name="plugin_organization">Jimako-e107-plugins</pref>
+		<pref name="plugin_repo">jmadmin</pref>
+		<pref name="plugin_branch">main</pref>
+	</pluginPrefs>
+</e107Plugin>
