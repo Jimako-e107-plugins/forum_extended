@@ -10,6 +10,42 @@ e107::lan('forum_extended', "front", true);
  
 class forum_extended_shortcodes extends e_shortcode
 {
+ 
+	/**
+	 * {FORUM_SEARCH}
+	 * @example {FORUM_SEARCH: placeholder=Search forums} - sets placeholder 'Search forums'
+	 * @example {FORUM_SEARCH: buttonclass=btn btn-small} - sets button class 'btn btn-small'
+	 * global shortcode for forum search outside templates
+	 */
+
+	function sc_forum_search($parm = null)
+	{
+
+		if (!deftrue('FONTAWESOME') || !$srchIcon = e107::getParser()->toGlyph('fa-search'))
+		{
+			$srchIcon = LAN_SEARCH;
+		}
+
+		$formclass 	= (!empty($parm['formclass'])) ? $parm['formclass']  : '';
+
+		$buttonclass 	= (!empty($parm['buttonclass'])) ? "class='" . $parm['buttonclass'] . "'" : "class='btn btn-default btn-secondary button'";
+		$placeholder    = (!empty($parm['placeholder'])) ? $parm['placeholder'] : LAN_SEARCH;
+
+		// String candidate for USERLIST wrapper
+		return "
+	<form method='get' class='forum-search-form {$formclass}' action='" . e_HTTP . "search.php'>
+	<div class='input-group'>
+	<input type='hidden' name='r' value='0' />
+	<input type='hidden' name='t' value='forum' />
+	<input type='hidden' name='forum' value='all' />
+	<input class='tbox form-control' type='text' name='q' size='20' value='' placeholder='" . $placeholder . "' maxlength='50' />
+	<span class='input-group-btn'>
+	<button " . $buttonclass . " type='submit' name='s' value='search' >" . $srchIcon . "</button>
+	</span>
+	</div>
+
+	</form>\n";
+	}
 
 	/* {LAST_FORUM_UPDATED} */
 	/* last post date from whole forum */
@@ -59,8 +95,10 @@ class forum_extended_shortcodes extends e_shortcode
     }
     
     /* {FORUM_WELCOME_INFO} */
-    function sc_forum_welcome_info() {
-    
+    function sc_forum_welcome_info($parm = NULL) {
+
+		$linkclass 	= (!empty($parm['linkclass'])) ? "class='" . $parm['linkclass'] . "'" : "";
+
         $INFO = "";
         if (USER == TRUE)
         {
@@ -120,11 +158,11 @@ class forum_extended_shortcodes extends e_shortcode
         	$INFO .= "";
         	if (ANON == TRUE)
         	{
-        		$INFO .= LAN_FORUM_0050." "."<a class='btn btn-primary' role='button' href='".e_SIGNUP."'>".LAN_FORUM_0051."</a>"." ".LAN_FORUM_0052;
+        		$INFO .= LAN_FORUM_0050." "."<a {$linkclass} role='button' href='".e_SIGNUP."'>".LAN_FORUM_0051."</a>"." ".LAN_FORUM_0052;
         	}
         	elseif(USER == FALSE)
         	{
-        		$INFO .=  LAN_FORUM_0053." "."<a class='btn btn-primary' role='button' href='".e_SIGNUP."'>".LAN_FORUM_0054."</a>"." ".LAN_FORUM_0055;
+        		$INFO .=  LAN_FORUM_0053." "."<a {$linkclass} role='button' href='".e_SIGNUP."'>".LAN_FORUM_0054."</a>"." ".LAN_FORUM_0055;
         	}
         }
         
