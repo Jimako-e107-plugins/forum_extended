@@ -171,6 +171,12 @@ class forum_thread_ui extends e_admin_ui
         $text .= "<div class='well'>Result for you:<br>";
         $text .= e107::getParser()->parseTemplate('{FORUM_WELCOME_INFO}');
         $text .= '</div>';
+
+        $text .= '<code><h3>{LAST_FORUM_UPDATED}</h3>';
+        $text .= "<div class='well'>Result for you:<br>";
+        $text .= e107::getParser()->parseTemplate('{LAST_FORUM_UPDATED}');
+        $text .= '</div>';
+
         e107::getRender()->tablerender('<h2>Available shortcodes</h2>', $text);
     }
 }
