@@ -10,6 +10,28 @@ e107::lan('forum_extended', "front", true);
  
 class forum_extended_shortcodes extends e_shortcode
 {
+
+	/* {LAST_FORUM_UPDATED} */
+	/* last post date from whole forum */
+	function sc_last_forum_updated() {
+
+		$date1 = e107::getDb()->retrieve('forum_thread',
+			'thread_datestamp',
+			' ORDER BY thread_datestamp DESC LIMIT 1' );
+
+		$date2 = e107::getDb()->retrieve(
+			'forum',
+			'forum_datestamp',
+			' ORDER BY forum_datestamp DESC LIMIT 1'
+		);	
+
+		$date = $date1 > $date2 ? $date1 : $date2;
+
+		$mode = empty($parm['format']) ? 'forum' : $parm['format'];
+
+		return e107::getParser()->toDate($date, $mode);
+ 
+	} 
     
     /* {FORUM_WELCOME} */
     function sc_forum_welcome() {
