@@ -1,184 +1,132 @@
 <?php
- 
+/**
+ * FILE: e107_plugins/forum_extended/e_shortcode.php
+ *
+ * {FORUM_EXT_ALPHA_LINK} - link to the alphabetical topic list of a forum.
+ * Usage notes: docs/notes.md.
+ *
+ * Parameters (all optional):
+ *   id=67         forum id. Without it the forum is found from the page:
+ *                 - topic list (forum_viewforum.php): the forum plugin has
+ *                   already resolved the forum, also from a SEF URL, into
+ *                   $_REQUEST['id'] and ?sef= - no query;
+ *                 - topic detail (forum_viewtopic.php): ?id= is the TOPIC
+ *                   id, its forum is read once.
+ *                 Anywhere else id= is required.
+ *   forums=67,70  show the link only for these forums - for a template that
+ *                 is shared by every forum.
+ *   type=url      return the bare URL instead of a button.
+ *
+ * Examples: {FORUM_EXT_ALPHA_LINK: forums=67,70}
+ *           {FORUM_EXT_ALPHA_LINK: id=67&type=url}
+ *
+ * The target page checks the visitor's permission; this only builds a link.
+ */
 
-if(!defined('e107_INIT'))
-{
-	exit;
-}
- 
-e107::lan('forum_extended', "front", true);
- 
+if(!defined('e107_INIT')) { exit; }
+
+
 class forum_extended_shortcodes extends e_shortcode
 {
- 
-	/**
-	 * {FORUM_SEARCH}
-	 * @example {FORUM_SEARCH: placeholder=Search forums} - sets placeholder 'Search forums'
-	 * @example {FORUM_SEARCH: buttonclass=btn btn-small} - sets button class 'btn btn-small'
-	 * global shortcode for forum search outside templates
-	 */
+	/** @var array|null forum of the current page, resolved once per request */
+	private $pageForum = null;
 
-	function sc_forum_search($parm = null)
+
+	/* {FORUM_EXT_ALPHA_LINK} */
+	public function sc_forum_ext_alpha_link($parm = null)
 	{
+		$parm = is_array($parm) ? $parm : array();
 
-		if (!deftrue('FONTAWESOME') || !$srchIcon = e107::getParser()->toGlyph('fa-search'))
+		require_once(__DIR__ . '/includes/forum_extended_alpha.php');
+
+		if(isset($parm['id']))
 		{
-			$srchIcon = LAN_SEARCH;
+			$forumId = (int) $parm['id'];
+			$sef     = null;   // read below, after the forums= check
+		}
+		else
+		{
+			$forum   = $this->pageForum();
+			$forumId = $forum['forum_id'];
+			$sef     = $forum['forum_sef'];
 		}
 
-		$formclass 	= (!empty($parm['formclass'])) ? $parm['formclass']  : '';
+		if($forumId < 1)
+		{
+			return '';
+		}
 
-		$buttonclass 	= (!empty($parm['buttonclass'])) ? "class='" . $parm['buttonclass'] . "'" : "class='btn btn-default btn-secondary button'";
-		$placeholder    = (!empty($parm['placeholder'])) ? $parm['placeholder'] : LAN_SEARCH;
+		if(!empty($parm['forums']))
+		{
+			$allowed = array_map('intval', explode(',', (string) $parm['forums']));
 
-		// String candidate for USERLIST wrapper
-		return "
-	<form method='get' class='forum-search-form {$formclass}' action='" . e_HTTP . "search.php'>
-	<div class='input-group'>
-	<input type='hidden' name='r' value='0' />
-	<input type='hidden' name='t' value='forum' />
-	<input type='hidden' name='forum' value='all' />
-	<input class='tbox form-control' type='text' name='q' size='20' value='' placeholder='" . $placeholder . "' maxlength='50' />
-	<span class='input-group-btn'>
-	<button " . $buttonclass . " type='submit' name='s' value='search' >" . $srchIcon . "</button>
-	</span>
-	</div>
+			if(!in_array($forumId, $allowed, true))
+			{
+				return '';
+			}
+		}
 
-	</form>\n";
+		if($sef === null)
+		{
+			$row = forum_extended_alpha::forum($forumId);
+			$sef = isset($row['forum_sef']) ? (string) $row['forum_sef'] : '';
+		}
+
+		$url = forum_extended_alpha::url($forumId, $sef);
+
+		if(isset($parm['type']) && $parm['type'] === 'url')
+		{
+			return $url;
+		}
+
+		e107::lan('forum_extended', 'front', true);
+
+		return '<a class="btn btn-sm btn-outline-primary forum-ext-alpha-link" href="' . forum_extended_alpha::esc($url) . '">'
+			. LAN_FORUM_EXT_ALPHA_LINK . '</a>';
 	}
 
-	/* {LAST_FORUM_UPDATED} */
-	/* last post date from whole forum */
-	function sc_last_forum_updated() {
 
-		$date1 = e107::getDb()->retrieve('forum_thread',
-			'thread_datestamp',
-			' ORDER BY thread_datestamp DESC LIMIT 1' );
+	/**
+	 * Forum of the page being shown: the forum on its topic list, the topic's
+	 * forum on a topic detail, none elsewhere.
+	 *
+	 * @return array array('forum_id' => int, 'forum_sef' => string)
+	 */
+	private function pageForum()
+	{
+		if($this->pageForum !== null)
+		{
+			return $this->pageForum;
+		}
 
-		$date2 = e107::getDb()->retrieve(
-			'forum',
-			'forum_datestamp',
-			' ORDER BY forum_datestamp DESC LIMIT 1'
-		);	
+		$this->pageForum = array('forum_id' => 0, 'forum_sef' => '');
 
-		$date = $date1 > $date2 ? $date1 : $date2;
+		$page = defset('e_PAGE');
 
-		$mode = empty($parm['format']) ? 'forum' : $parm['format'];
+		if($page === 'forum_viewforum.php')
+		{
+			$this->pageForum['forum_id'] = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
 
-		return e107::getParser()->toDate($date, $mode);
- 
-	} 
-    
-    /* {FORUM_WELCOME} */
-    function sc_forum_welcome() {
- 
-        $INFO = "";
-        if (USER == TRUE)
-        {
-            $INFO = LAN_FORUM_0018." ".USERNAME."<br />";
-        }
-        else
-        {
-        	$INFO .= "";
-        	if (ANON == TRUE)
-        	{
-        		$INFO .= LAN_FORUM_0049;
-        	}
-        	elseif(USER == FALSE)
-        	{
-        		$INFO .=  LAN_FORUM_0049;
-        	}
-        }
-        
-        return $INFO;
-    
-    }
-    
-    /* {FORUM_WELCOME_INFO} */
-    function sc_forum_welcome_info($parm = NULL) {
+			if(!empty($_GET['sef']) && is_string($_GET['sef']))
+			{
+				$this->pageForum['forum_sef'] = $_GET['sef'];
+			}
+			elseif($this->pageForum['forum_id'] > 0)
+			{
+				$row = forum_extended_alpha::forum($this->pageForum['forum_id']);
+				$this->pageForum['forum_sef'] = isset($row['forum_sef']) ? (string) $row['forum_sef'] : '';
+			}
+		}
+		elseif($page === 'forum_viewtopic.php' && !empty($_GET['id']))
+		{
+			$row = forum_extended_alpha::forumOfThread((int) $_GET['id']);
 
-		$linkclass 	= (!empty($parm['linkclass'])) ? "class='" . $parm['linkclass'] . "'" : "";
+			if(!empty($row))
+			{
+				$this->pageForum = $row;
+			}
+		}
 
-        $INFO = "";
-        if (USER == TRUE)
-        {
-            $total_new_threads = e107::getDb()->count('forum_thread', '(*)', "WHERE thread_datestamp>'".USERLV."' ");
-            $total_updated_threads = e107::getDb()->count('forum_thread', '(*)', "WHERE thread_lastpost >'".USERLV."'  AND thread_lastpost > thread_datestamp ");
-         
-           // if($total_updated_threads > $total_new_threads) $total_new_threads =  $total_updated_threads;
-            $userData = e107::user(USERID);
-            
-        	if ($userData['user_plugin_forum_viewed'] != "")
-        	{
-        		$tmp = explode(".", $userData['user_plugin_forum_viewed']);		// List of numbers, separated by single period
-        		$total_read_threads = count($tmp);
-        	}
-        	else
-        	{
-        		$total_read_threads = 0;
-        	}
-        
-        	 
-        	//$lastvisit_datestamp = $gen->convert_date(USERLV, 'long');
-            $lastvisit_datestamp = defined('USERLV') ? e107::getDate()->convert_date(USERLV, 'long') : '';
-        	$datestamp = e107::getDate()->convert_date(time(), "long");
-        /*	if (!$total_new_threads)
-        	{
-        		$INFO .= LAN_FORUM_0019;
-        	}
-        	elseif($total_new_threads == 1)
-        	{
-        		$INFO .= LAN_FORUM_0020;
-        	}
-        	else
-        	{
-        		$INFO .= LAN_FORUM_0021." ".$total_new_threads." ".LAN_FORUM_0022." ";
-        	} */
-            
-            $INFO .= LAN_FORUM_NEW_0001." ".LAN_FORUM_NEW_0004 .": ".LAN_FORUM_NEW_0002.":". $total_new_threads ." & ".LAN_FORUM_NEW_0003.":". $total_updated_threads ;
-     
-       
-            if ( ($total_new_threads == $total_read_threads && $total_new_threads != 0 ) OR  $total_read_threads >= $total_new_threads)
-        	{
-        		$INFO .= "<br>".LAN_FORUM_0029;
-        		$allread = TRUE;
-        	}
-        	elseif($total_read_threads != 0 )
-        	{
-        		$INFO .= " (".LAN_FORUM_0027. " ". $total_read_threads. " " . LAN_FORUM_0028.")";
-        	}
-        
-        	$INFO .= "<br><small>
-        	".LAN_FORUM_0024." ".$lastvisit_datestamp."<br />
-        	".LAN_FORUM_0025." ".$datestamp."</small>";
-            
-        }
-        else
-        {
-        	$INFO .= "";
-        	if (ANON == TRUE)
-        	{
-        		$INFO .= LAN_FORUM_0050." "."<a {$linkclass} role='button' href='".e_SIGNUP."'>".LAN_FORUM_0051."</a>"." ".LAN_FORUM_0052;
-        	}
-        	elseif(USER == FALSE)
-        	{
-        		$INFO .=  LAN_FORUM_0053." "."<a {$linkclass} role='button' href='".e_SIGNUP."'>".LAN_FORUM_0054."</a>"." ".LAN_FORUM_0055;
-        	}
-        }
-        
-        
-        if (USER && $allread != TRUE && ( $total_new_threads OR $total_updated_threads) && ($total_new_threads >= $total_read_threads OR $total_updated_threads >= $total_read_threads ))
-        {
-        	$url_new = e107::getUrl()->create("forum/new");
-            $url_markread = e107::getUrl()->create("forum/markread/all");   //mark.all.as.read
-            
-            $INFO .= "<br /><a class='btn btn-primary' href='".$url_markread."'>".LAN_FORUM_0057.'</a>'.(e_QUERY != 'new' ? "  <a class='btn btn-primary'  href='".$url_new."'>".LAN_FORUM_NEW_0007."</a>" : '');
-        }
-        
-        
-        return $INFO;
-    
-    }
- 
+		return $this->pageForum;
+	}
 }
-

@@ -1,11 +1,18 @@
 <?php
+/**
+ * FILE: e107_plugins/forum_extended/languages/English/English_front.php
+ *
+ * Front-end constants. Loaded via e107::lan('forum_extended', 'front', true).
+ */
 
+if(!defined('e107_INIT')) { exit; }
 
-define("LAN_FORUM_NEW_0001", "There are");  
-define("LAN_FORUM_NEW_0002", "new topics");  
-define("LAN_FORUM_NEW_0003", "updated topics");   
-define("LAN_FORUM_NEW_0004", "since your last visit");  
-define("LAN_FORUM_NEW_0005", "You last visited at ");   
-define("LAN_FORUM_NEW_0006", "It is now");   
-define("LAN_FORUM_NEW_0007", "Show new / updated topics"); // LAN_421 
- 
+return [
+	'LAN_FORUM_EXT_ALPHA_TITLE' => "Alphabetical list",
+	'LAN_FORUM_EXT_ALL'         => "All",
+	'LAN_FORUM_EXT_OTHER'       => "Other",
+	'LAN_FORUM_EXT_NO_TOPICS'   => "No topics.",
+	'LAN_FORUM_EXT_BACK'        => "« Back to the forum",
+	'LAN_FORUM_EXT_NO_ACCESS'   => "You are not allowed to view this forum.",
+	'LAN_FORUM_EXT_ALPHA_LINK' => "Alphabetical list",
+];

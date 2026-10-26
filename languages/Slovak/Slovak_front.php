@@ -1,11 +1,18 @@
 <?php
+/**
+ * FILE: e107_plugins/forum_extended/languages/Slovak/Slovak_front.php
+ *
+ * Front-end constants. Loaded via e107::lan('forum_extended', 'front', true).
+ */
 
+if(!defined('e107_INIT')) { exit; }
 
-define("LAN_FORUM_NEW_0001", "Od vašej poslednej návštevy");  
-define("LAN_FORUM_NEW_0002", "nových tém");  
-define("LAN_FORUM_NEW_0003", "doplnených tém");   
-define("LAN_FORUM_NEW_0004", "pribudlo");  
-define("LAN_FORUM_NEW_0005", "Naposledy ste tu boli ");   
-define("LAN_FORUM_NEW_0006", "It is now");   
-define("LAN_FORUM_NEW_0007", "Zobraziť nové / pridané témy"); // LAN_421 
- 
+return [
+	'LAN_FORUM_EXT_ALPHA_TITLE' => "Abecedný zoznam",
+	'LAN_FORUM_EXT_ALL'         => "Všetko",
+	'LAN_FORUM_EXT_OTHER'       => "Ostatné",
+	'LAN_FORUM_EXT_NO_TOPICS'   => "Žiadne témy.",
+	'LAN_FORUM_EXT_BACK'        => "« Späť do fóra",
+	'LAN_FORUM_EXT_NO_ACCESS'   => "Nemáte oprávnenie čítať toto fórum.",
+	'LAN_FORUM_EXT_ALPHA_LINK' => "Abecedný zoznam",
+];

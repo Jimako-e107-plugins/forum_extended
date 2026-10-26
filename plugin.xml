@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<e107Plugin name="Forum Extended" lan="Forum Extended" version="1.1.0" date="2022-05-19" compatibility="2.3" installRequired="true" >
-	<author name="Jimako" url="https://www.e107sk.com" />
-	<summary>This plugin extends forum plugin functionality</summary>
-	<description>This plugin extends forum plugin functionality</description>
+<e107Plugin name="Forum Extended" version="2.0.0" date="2026-10-23" compatibility="2.4" installRequired="false" >
+	<author name="Jimako" url="https://www.e107sk.com/" />
+	<summary>Site extensions of the forum plugin</summary>
+	<description>Alphabetical topic list of any forum (alpha.php?id=N, shortcode {FORUM_EXT_ALPHA_LINK}) and a flat topic list in the admin area. Does not change the forum plugin.</description>
 	<keywords>
-		<word>admin</word>
 		<word>forum</word>
 		<word>extended</word>
 	</keywords>
 	<category>content</category>
-	<copyright>e107sk.com</copyright>
 	<adminLinks>
-		<link url="admin/admin_config.php" description="" icon='images/forums_32.png' iconSmall='images/forums_16.png' primary="true" >LAN_CONFIGURE</link>
+		<link url="admin/admin_threads.php" description="LAN_CONFIGURE" icon="images/forums_32.png" iconSmall="images/forums_16.png" primary="true" >LAN_CONFIGURE</link>
 	</adminLinks>
+	<copyright>e107sk.com</copyright>
 </e107Plugin>
